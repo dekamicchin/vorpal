@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::Write;
 use std::io::copy;
 use futures_util::StreamExt;
+use futures_util::join;
 use serde::Deserialize;
 use scraper;
 use serde_json;
@@ -146,33 +147,25 @@ impl QueryResponse {
 
 pub async fn download_model(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
-    dbg!{&url};
     let res = reqwest::get(url)
         .await
         .or(Err(ERR_FETCH));
 
-    let mut validated_res = match res {
+    let validated_res = match res {
         Ok(r) => r,
         Err(e) => panic!("{}", e),
     };
     
-    //let content = validated_res.text().await?;
-    //dbg!{content};
     let file = File::create(path).or(Err(ERR_FILE_CREATE));
-
-    // match file {
-    //     Ok(mut f) => f.write_all(content.as_bytes()),
-    //     Err(e) => panic!("{}", e),
-    // };
-
-    //let mut downloaded: u64 = 0;
     let stream = &mut validated_res.bytes_stream();
     
     match file {
         Ok(mut f) => {while let Some(item) = stream.next().await {
             let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
-            f.write_all(&chunk.unwrap())
-                .or(Err(ERR_FILE_WRITE));
+            match f.write_all(&chunk.unwrap()) {
+                Ok(_) => println!("Debug: Chunk written"),
+                Err(e) => panic!("{}", e),
+            }
             // TODO progress bar
         }}
         Err(e) => panic!("{}", e),
@@ -251,6 +244,12 @@ impl QueryItem {
         let model_version = self.get_first();
         let model_file = model_version.get_file();
         model_file.name
+    }
+
+    pub fn get_model_filesize(&self) -> f64 {
+        let model_version = self.get_first();
+        let model_file = model_version.get_file();
+        model_file.size_kb
     }
 }
 

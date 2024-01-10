@@ -120,8 +120,9 @@ fn concatenate_query_items(queries: Vec<QueryItem>, full: bool) -> String {
 async fn download(model: QueryItem, dir: PathBuf) {
     let id = model.get_download_id();
     let filename = model.get_model_filename();
+    let size_mb = model.get_model_filesize() * 0.001;
     let file_path = format!("{}/{}", dir.display(), filename);
-    println!("{}", MSG_DOWNLOAD_START);
+    println!("{} {}MB", MSG_DOWNLOAD_START, size_mb);
     match download_model(id, file_path).await {
         Ok(_) => println!("{}", MSG_DOWNLOAD_SUCCESS),
         Err(e) => println!("{}\n{}", e, MSG_DOWNLOAD_FAIL),
