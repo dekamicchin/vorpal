@@ -118,7 +118,7 @@ fn concatenate_query_items(queries: Vec<QueryItem>, full: bool) -> String {
 
 #[tokio::main]
 async fn download(model: QueryItem, dir: PathBuf) {
-    let id = model.get_id();
+    let id = model.get_download_id();
     let filename = model.get_model_filename();
     let file_path = format!("{}/{}", dir.display(), filename);
     println!("{}", MSG_DOWNLOAD_START);

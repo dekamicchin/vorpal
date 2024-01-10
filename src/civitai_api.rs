@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Write;
+use std::io::copy;
 use futures_util::StreamExt;
 use serde::Deserialize;
 use scraper;
@@ -143,22 +144,38 @@ impl QueryResponse {
     }
 }
 
-pub async fn download_model(id: String, path: String) -> Result<(), String> {
+pub async fn download_model(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
+    dbg!{&url};
     let res = reqwest::get(url)
         .await
-        .or(Err(ERR_FETCH))?;
-    
-    let mut file = File::create(path).or(Err(ERR_FILE_CREATE))?;
-    //let mut downloaded: u64 = 0;
-    let mut stream = res.bytes_stream();
+        .or(Err(ERR_FETCH));
 
+    let mut validated_res = match res {
+        Ok(r) => r,
+        Err(e) => panic!("{}", e),
+    };
     
-    while let Some(item) = stream.next().await {
-        let chunk = item.or(Err(ERR_FILE_DOWNLOAD))?;
-        file.write_all(&chunk)
-            .or(Err(ERR_FILE_WRITE))?;
-        // TODO progress bar
+    //let content = validated_res.text().await?;
+    //dbg!{content};
+    let file = File::create(path).or(Err(ERR_FILE_CREATE));
+
+    // match file {
+    //     Ok(mut f) => f.write_all(content.as_bytes()),
+    //     Err(e) => panic!("{}", e),
+    // };
+
+    //let mut downloaded: u64 = 0;
+    let stream = &mut validated_res.bytes_stream();
+    
+    match file {
+        Ok(mut f) => {while let Some(item) = stream.next().await {
+            let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
+            f.write_all(&chunk.unwrap())
+                .or(Err(ERR_FILE_WRITE));
+            // TODO progress bar
+        }}
+        Err(e) => panic!("{}", e),
     }
 
 
@@ -223,6 +240,11 @@ impl QueryItem {
         let model_version = self.get_first();
         let model_file = model_version.get_file();
         model_file.download_url
+    }
+
+    pub fn get_download_id(&self) -> String {
+        let model_version = self.get_first();
+        model_version.get_model_id()
     }
 
     pub fn get_model_filename(&self) -> String {
