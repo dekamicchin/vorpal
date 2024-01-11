@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 
-use crate::civitai_api::{get_model_file_url, download_model, get_first_query_item, QueryItem};
+use crate::civitai_api::{get_model_file_url, download_civitai_model_by_id, get_first_query_item, QueryItem};
 
 mod civitai_api;
 mod format;
@@ -21,6 +21,7 @@ const ENV_MODEL_DIR: &str = "MODEL_DIRECTORY";
 const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
 const ERR_COUNT_TOO_BIG: &str = "Vorpal: Maximum query count allowed by API is 100";
 const ERR_MUTUALLY_EXCLUSIVE: &str = "Vorpal: These arguments are mutually exclusive. The -m argument is meant for only downloading metadata, and the -o argument is for only downloading models.";
+const MSG_DRY_RUN: &str = "Vorpal: Performing dry run (no download)";
 const MSG_DOWNLOAD_START: &str = "Vorpal: Starting download...";
 const MSG_DOWNLOAD_SUCCESS: &str = "Vorpal: Download successful! Enjoy your model!";
 const MSG_DOWNLOAD_FAIL: &str = "Vorpal: Download failed";
@@ -72,6 +73,7 @@ struct Args {
     /// Return the download url of a model only.
     #[arg(short, long, value_name = "MODEL_NAME")]
     url: Option<String>,
+
 }
 
 impl QueryItem {
@@ -123,7 +125,7 @@ async fn download(model: QueryItem, dir: PathBuf) {
     let size_mb = model.get_model_filesize() * 0.001;
     let file_path = format!("{}/{}", dir.display(), filename);
     println!("{} {}MB", MSG_DOWNLOAD_START, size_mb);
-    match download_model(id, file_path).await {
+    match download_civitai_model_by_id(id, file_path).await {
         Ok(_) => println!("{}", MSG_DOWNLOAD_SUCCESS),
         Err(e) => println!("{}\n{}", e, MSG_DOWNLOAD_FAIL),
     };
@@ -157,7 +159,7 @@ fn run(args: Args) -> Result<()> {
         None => env_directory,
     };
 
-    if only_model && only_meta { panic!("{}", ERR_MUTUALLY_EXCLUSIVE) }
+    if only_model && only_meta { println!("{}\n{}", ERR_MUTUALLY_EXCLUSIVE, MSG_DRY_RUN) }
 
     if args.url.is_some() {
         let u = args.url.unwrap();

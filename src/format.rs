@@ -1,9 +1,19 @@
 use clap_num::number_range;
+use unicode_segmentation::UnicodeSegmentation;
 
 pub fn shorten(string: String, length: usize, trail: &str) -> String {
-    let mut truncated = string.clone();
-    truncated.truncate(length);
-    let shortened = format!("{}{}", truncated, trail);
+    let graphemes = string.grapheme_indices(true);
+    // let trimmed = &string[..length];
+    let graph_vec: Vec<_> = graphemes.take(length).into_iter().collect();
+    // let trimmed = graph_vec[..length].join("-");
+    let mut unpacked: Vec<&str> = vec![];
+    for grapheme in graph_vec {
+        unpacked.push(grapheme.1)
+    }
+    let joined = unpacked.join("");
+    
+    //dbg!{&graphemes};
+    let shortened = format!("{:?}{}", joined, trail);
     shortened
 }
 

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use std::io::copy;
+use std::mem::size_of_val;
 use futures_util::StreamExt;
 use futures_util::join;
 use serde::Deserialize;
@@ -145,7 +146,7 @@ impl QueryResponse {
     }
 }
 
-pub async fn download_model(id: String, path: String) -> Result<(), Error> {
+pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
     let res = reqwest::get(url)
         .await
@@ -153,19 +154,28 @@ pub async fn download_model(id: String, path: String) -> Result<(), Error> {
 
     let validated_res = match res {
         Ok(r) => r,
-        Err(e) => panic!("{}", e),
+        Err(e) => panic!("{}", e), //TODO error message
     };
     
     let file = File::create(path).or(Err(ERR_FILE_CREATE));
     let stream = &mut validated_res.bytes_stream();
+    let mut downloaded: u64 = 0;
     
     match file {
         Ok(mut f) => {while let Some(item) = stream.next().await {
             let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
-            match f.write_all(&chunk.unwrap()) {
-                Ok(_) => println!("Debug: Chunk written"),
+            match chunk {
+                Ok(c) => { 
+                    downloaded += c.clone().len() as u64;
+                    f.write_all(&c);
+                    println!{"{}", downloaded}
+                }
                 Err(e) => panic!("{}", e),
             }
+            // match f.write_all(&chunk.clone().unwrap()) { //TODO refactor (new download function)
+            //     Ok(c) => downloaded += chunk.unwrap().len() as u64,
+            //     Err(e) => panic!("{}", e),
+            // }
             // TODO progress bar
         }}
         Err(e) => panic!("{}", e),
@@ -213,8 +223,18 @@ impl QueryItem {
         trimmed
     }
 
+    /// Attempt to get a short description for the model. 
+    /// If the description does not need to be shortened, it will remain untouched.
+    /// Args:
+    ///     len - The length to shorten the description to
+    ///     trail - What to add at the end of the description (ex. ...)
     pub fn get_short_description(&self, len: usize, trail: &str) -> String {
-        shorten(self.get_description(), len, trail)
+        let desc = self.get_description();
+        if desc.len() > len {
+            shorten(self.get_description(), len, trail)
+        } else {
+            self.get_description()
+        }
     }
 
 
