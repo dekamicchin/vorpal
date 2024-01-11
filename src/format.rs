@@ -17,7 +17,7 @@ pub fn shorten_unicode(string: String, length: usize, trail: &str) -> String {
     let joined = unpacked.join("");
     
     //dbg!{&graphemes};
-    let shortened = format!("{:?}{}", joined, trail);
+    let shortened = format!("{}{}", joined, trail);
     shortened
 }
 
