@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::lib::shorten_unicode;
+    use vorpal::*;
 
     #[test]
     fn shorten_test() {
@@ -33,6 +33,16 @@ mod tests {
     #[test]
     fn shorten_rune_test() {
         let input = "ᚠ feoh, ᚢ ur, ᚦ þorn, ᚩ os, ᚱ rad, ᚳ".to_string();
+        let trunc_length = 12;
+        let trunc_trail = "...";
+        let expected_outcome = "ᚠ feoh, ᚢ ur...";
+
+        assert_eq!(expected_outcome, shorten_unicode(input, trunc_length, trunc_trail));
+    }
+
+    #[test]
+    fn glitter_url() {
+        let input = "glitter".to_string();
         let trunc_length = 12;
         let trunc_trail = "...";
         let expected_outcome = "ᚠ feoh, ᚢ ur...";

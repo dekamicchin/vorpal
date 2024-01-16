@@ -1,9 +1,6 @@
 use std::fs::File;
 use std::io::Write;
-use std::io::copy;
-use std::mem::size_of_val;
 use futures_util::StreamExt;
-use futures_util::join;
 use serde::Deserialize;
 use scraper;
 use serde_json;

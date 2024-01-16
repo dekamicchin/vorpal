@@ -13,10 +13,11 @@ mod test;
 const DEFAULT_COUNT: u8 = 5;
 const REPORT_FORMAT: &str = ".txt";
 const ENV_MODEL_DIR: &str = "MODEL_DIRECTORY";
-const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
 const ERR_COUNT_TOO_BIG: &str = "Vorpal: Maximum query count allowed by API is 100";
 const ERR_MUTUALLY_EXCLUSIVE: &str = "Vorpal: These arguments are mutually exclusive. The -m argument is meant for only downloading metadata, and the -o argument is for only downloading models.";
 const MSG_DRY_RUN: &str = "Vorpal: Performing dry run (no download)";
+const MSG_WRITE_SUCCESS: &str = "Vorpal: Wrote metadata file";
+const ERR_WRITE_FAIL: &str = "Vorpal: An error occured when writing the metadata file.\nDo you have write permission?";
 const MSG_DOWNLOAD_START: &str = "Vorpal: Starting download...";
 const MSG_DOWNLOAD_SUCCESS: &str = "Vorpal: Download successful! Enjoy your model!";
 const MSG_DOWNLOAD_FAIL: &str = "Vorpal: Download failed";
@@ -73,7 +74,7 @@ struct Args {
 
 fn print_query(mut query: Vec<QueryItem>, full: bool) -> () {
     query.reverse();
-    dbg!{&query};
+    // dbg!{&query};
     let output = concatenate_query_items(query, full);
     println!("{}", output);
 }
@@ -109,12 +110,16 @@ async fn download(model: QueryItem, dir: PathBuf) {
     };
 }
 
-fn write_report(model: QueryItem, dir: PathBuf) {
+fn write_report(model: QueryItem, dir: PathBuf) -> () {
     let filename = model.get_model_filename();
     let report = model.generate_model_report().join("\n");
     let file_path = format!("{}/{}{}", dir.display(), filename, REPORT_FORMAT);
     let file = File::create(file_path);
-    let _ = file.expect(ERR_FILE_WRITE).write_all(&report.as_bytes());
+    let written = file.expect(ERR_WRITE_FAIL).write_all(&report.as_bytes());
+    match written {
+        Ok(()) => println!("{}", MSG_WRITE_SUCCESS),
+        Err(e) => println!("{}\n{}", e, ERR_WRITE_FAIL),
+    }
 }
 
 fn run(args: Args) -> Result<()> {
