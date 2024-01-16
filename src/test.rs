@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::format::shorten_unicode;
+    use crate::lib::shorten_unicode;
 
     #[test]
     fn shorten_test() {

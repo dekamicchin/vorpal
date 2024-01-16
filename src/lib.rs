@@ -9,7 +9,6 @@ use scraper;
 use serde_json;
 use reqwest::Error;
 
-use crate::format::shorten;
 
 const ERR_CONNECTION: &str = "Vorpal: Error in getting JSON. Ensure you have a stable internet connection. Try connecting to 1.1.1.1, 0.0.0.0, or google.com in a browser to ensure DNS connectivity.\n";
 const ERR_GET_JSON: &str = "Vorpal: Error in getting JSON. This is likely due to trying to parse an invalid query.\n";
@@ -17,6 +16,9 @@ const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the res
 const ERR_FILE_CREATE: &str = "Vorpal: Failed to create file. Is the file path clear?\n";
 const ERR_FILE_DOWNLOAD: &str = "Vorpal: Something went wrong while downloading the file. Is your connection stable?\n";
 const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
+const QUERY_INDENT: &str = "    ";
+const SHORT_SIZE: usize = 100;
+const DESC_CUTOFF: &str = "...";
 const MSG_NO_RESULTS: &str = "Vorpal: No results were found.\n";
 const BASE_DL_URL: &str = "https://civitai.com/api/download/models/"; 
 const NO_DESC: &str = "<No description given>";
@@ -231,7 +233,7 @@ impl QueryItem {
     pub fn get_short_description(&self, len: usize, trail: &str) -> String {
         let desc = self.get_description();
         if desc.len() > len {
-            shorten(self.get_description(), len, trail)
+            shorten_unicode(self.get_description(), len, trail)
         } else {
             self.get_description()
         }
@@ -270,6 +272,21 @@ impl QueryItem {
         let model_version = self.get_first();
         let model_file = model_version.get_file();
         model_file.size_kb
+    }
+
+    /// Method for CLI-specific output of queries
+    pub fn make_cli_query_display(&self, full: bool) -> String {
+        let mut display_vec: Vec<String> = Vec::new();
+        display_vec.push(format!("{}Model: {}", QUERY_INDENT, self.get_model_filename()));
+        display_vec.push(format!("{}Id: {}", QUERY_INDENT, self.get_id()));
+        display_vec.push(format!("{}Creator: {}", QUERY_INDENT, self.get_creator_name()));
+        display_vec.push(format!("{}Tags: {}", QUERY_INDENT, self.get_tags()));
+        match full {
+            true => display_vec.push(format!("{}{}", QUERY_INDENT, self.get_description())),
+            false => display_vec.push(format!("{}{}", QUERY_INDENT, self.get_short_description(SHORT_SIZE, DESC_CUTOFF))),
+        }
+        display_vec.push("\n".to_string());
+        display_vec.join("\n")
     }
 }
 
@@ -329,4 +346,34 @@ impl ModelFile {
         file_metadata.push(format!("File Size (KB): {}", self.get_size()));
         file_metadata
     }
+}
+
+use clap_num::number_range;
+use unicode_segmentation::UnicodeSegmentation;
+
+/// Shorten a unicode string and add a trail at the end (ex. ...).
+/// Can handle Chinese script, emojis, and other scripts.
+/// Args:
+///     string - the string to shorten
+///     len - The length to shorten the description to
+///     trail - What to add at the end of the description (ex. ...)
+pub fn shorten_unicode(string: String, length: usize, trail: &str) -> String {
+    let graphemes = string.grapheme_indices(true);
+    let graph_vec: Vec<_> = graphemes.take(length).into_iter().collect();
+    let mut unpacked: Vec<&str> = vec![];
+    for grapheme in graph_vec {
+        unpacked.push(grapheme.1)
+    }
+    let joined = unpacked.join("");
+    
+    //dbg!{&graphemes};
+    let shortened = format!("{}{}", joined, trail);
+    shortened
+}
+
+pub fn check_limit(s: &str) -> Result<u8, String> {
+    number_range(s, 0, 100)
+}
+
+impl QueryItem {
 }

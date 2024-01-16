@@ -5,17 +5,12 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io;
 use std::io::Write;
+use vorpal::*;
 
-use crate::civitai_api::{get_model_file_url, download_civitai_model_by_id, get_first_query_item, QueryItem};
 
-mod civitai_api;
-mod format;
-mod format_test;
+mod test;
 
 const DEFAULT_COUNT: u8 = 5;
-const SHORT_SIZE: usize = 100;
-const DESC_CUTOFF: &str = "...";
-const TAB_SPACE: &str = "    ";
 const REPORT_FORMAT: &str = ".txt";
 const ENV_MODEL_DIR: &str = "MODEL_DIRECTORY";
 const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
@@ -59,7 +54,7 @@ struct Args {
     query: Option<String>,
 
     /// How many models to search 
-    #[arg(short, long, default_value_t = DEFAULT_COUNT, value_name = "COUNT", value_parser=format::check_limit)]
+    #[arg(short, long, default_value_t = DEFAULT_COUNT, value_name = "COUNT", value_parser=check_limit)]
     count: u8,
     
     /// Enter query as 'safe' (no NSFW).
@@ -74,23 +69,6 @@ struct Args {
     #[arg(short, long, value_name = "MODEL_NAME")]
     url: Option<String>,
 
-}
-
-impl QueryItem {
-    /// Method for CLI-specific output of queries
-    fn make_cli_query_display(&self, full: bool) -> String {
-        let mut display_vec: Vec<String> = Vec::new();
-        display_vec.push(format!("{}Model: {}", TAB_SPACE, self.get_model_filename()));
-        display_vec.push(format!("{}Id: {}", TAB_SPACE, self.get_id()));
-        display_vec.push(format!("{}Creator: {}", TAB_SPACE, self.get_creator_name()));
-        display_vec.push(format!("{}Tags: {}", TAB_SPACE, self.get_tags()));
-        match full {
-            true => display_vec.push(format!("{}{}", TAB_SPACE, self.get_description())),
-            false => display_vec.push(format!("{}{}", TAB_SPACE, self.get_short_description(SHORT_SIZE, DESC_CUTOFF))),
-        }
-        display_vec.push("\n".to_string());
-        display_vec.join("\n")
-    }
 }
 
 fn print_query(mut query: Vec<QueryItem>, full: bool) -> () {
@@ -169,14 +147,14 @@ fn run(args: Args) -> Result<()> {
 
     if args.query.is_some() {
         let q = args.query.unwrap();
-        let query = civitai_api::get_query_items(q, count, safe);
+        let query = get_query_items(q, count, safe);
         print_query(query, full)
     }
 
     if args.model_name.is_some() {
         let model_name = args.model_name.unwrap();
         if interactive {
-            let query = civitai_api::get_query_items(model_name, count, safe);
+            let query = get_query_items(model_name, count, safe);
             let len = query.len() + 1;
             print_query(query.clone(), full);
             let mut user_input = String::new();
