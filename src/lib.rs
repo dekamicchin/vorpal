@@ -13,7 +13,7 @@ const ERR_GET_JSON: &str = "Vorpal: Error in getting JSON. This is likely due to
 const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the result of an unstable connection.\n";
 const ERR_FILE_CREATE: &str = "Vorpal: Failed to create file. Is the file path clear?\n";
 const ERR_FILE_DOWNLOAD: &str = "Vorpal: Something went wrong while downloading the file. Is your connection stable?\n";
-const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
+const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n"; //TODO
 const ERR_FILE_DELETE: &str = "Vorpal: Something went wrong when deleting the file.\nThe model file is likely corrupted, and vorpal is unable to delete it.";
 const QUERY_INDENT: &str = "    ";
 const SHORT_SIZE: usize = 100;
@@ -23,6 +23,7 @@ const BASE_DL_URL: &str = "https://civitai.com/api/download/models/";
 const NO_DESC: &str = "<No description given>";
 
 #[derive(Deserialize, Debug)]
+/// A vector of QueryItems sent from Civitai
 pub struct QueryResponse {
     pub items: Vec<QueryItem>,
 }
@@ -30,6 +31,18 @@ pub struct QueryResponse {
 #[allow(dead_code)]
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+/// A struct that contains important metadata of a Civitai "model".
+/// Take this model, for example:
+/// https://civitai.com/models/235002/sdxl-red-glitter
+/// 
+/// The QueryItem will contain the important metadata used to describe, catalog, and donwload
+/// the red glitter model.
+/// 
+/// It should be noted that a QueryItem is not a model file or metadata for one model.
+/// The model_version struct within the QueryItem contains the versions of the model, which then 
+/// contains a Vec of the ModelFiles struct. Also note that QueryItems, model versions, and model 
+/// files all have their own, separate Ids. The Id used in download links belongs to the model 
+/// version, and can be accessed with QueryItem's get_download_id().
 pub struct QueryItem {
     name: String,
     id: u32,
@@ -184,6 +197,21 @@ pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<()
     return Ok(())
 }
 
+pub async fn download_file_by_url(url: String, path: String) -> Result<(), Error> {
+    let res = reqwest::get(url)
+        .await
+        .or(Err(ERR_FETCH));
+
+    let validated_res = match res {
+        Ok(r) => r,
+        Err(e) => panic!("{}", e), //TODO error message
+    };
+    
+    let file = File::create(&path).or(Err(ERR_FILE_CREATE));
+    perform_validated_download(file, path, validated_res).await;
+    return Ok(())
+}
+
 impl QueryItem {
     pub fn get_id(&self) -> String {
         self.id.to_string()
@@ -271,7 +299,9 @@ impl QueryItem {
         model_file.size_kb
     }
 
-    /// Method for CLI-specific output of queries
+    /// Generate CLI-oriented output of QueryItem
+    /// Args:
+    ///     full - true for full description, false for short description
     pub fn make_cli_query_display(&self, full: bool) -> String {
         let mut display_vec: Vec<String> = Vec::new();
         display_vec.push(format!("{}Model: {}", QUERY_INDENT, self.get_model_filename()));
@@ -289,7 +319,6 @@ impl QueryItem {
 }
 
 impl ModelVersion {
-
     fn get_model_id(&self) -> String {
         self.id.to_string()
     }
