@@ -98,7 +98,6 @@ fn concatenate_query_items(queries: Vec<QueryItem>, full: bool) -> String {
 
 #[tokio::main]
 async fn download(model: QueryItem, dir: PathBuf) {
-    let id = model.get_download_id();
     let test = model.get_download_url();
     let filename = model.get_model_filename();
     let size_mb = model.get_model_filesize() * 0.001;
@@ -108,10 +107,6 @@ async fn download(model: QueryItem, dir: PathBuf) {
         Ok(_) => println!("{}", MSG_DOWNLOAD_SUCCESS),
         Err(e) => println!("{}\n{}", e, MSG_DOWNLOAD_FAIL),
     };
-    // match download_civitai_model_by_id(id, file_path).await {
-    //     Ok(_) => println!("{}", MSG_DOWNLOAD_SUCCESS),
-    //     Err(e) => println!("{}\n{}", e, MSG_DOWNLOAD_FAIL),
-    // };
 }
 
 fn write_report(model: QueryItem, dir: PathBuf) -> () {
