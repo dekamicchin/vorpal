@@ -5,8 +5,7 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io;
 use std::io::Write;
-use vorpal::*;
-
+use libvorpal::*;
 
 mod test;
 
@@ -103,7 +102,7 @@ async fn download(model: QueryItem, dir: PathBuf) {
     let filename = model.get_model_filename();
     let size_mb = model.get_model_filesize() * 0.001;
     let file_path = format!("{}/{}", dir.display(), filename);
-    println!("{} {}MB", MSG_DOWNLOAD_START, size_mb);
+    println!("{} {:.2}MB", MSG_DOWNLOAD_START, size_mb);
     match download_civitai_model_by_id(id, file_path).await {
         Ok(_) => println!("{}", MSG_DOWNLOAD_SUCCESS),
         Err(e) => println!("{}\n{}", e, MSG_DOWNLOAD_FAIL),

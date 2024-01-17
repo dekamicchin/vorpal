@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Write;
+use std::fs::remove_file;
 use futures_util::StreamExt;
 use serde::Deserialize;
 use scraper;
@@ -13,6 +14,7 @@ const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the res
 const ERR_FILE_CREATE: &str = "Vorpal: Failed to create file. Is the file path clear?\n";
 const ERR_FILE_DOWNLOAD: &str = "Vorpal: Something went wrong while downloading the file. Is your connection stable?\n";
 const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
+const ERR_FILE_DELETE: &str = "Vorpal: Something went wrong when deleting the file.\nThe model file is likely corrupted, and vorpal is unable to delete it.";
 const QUERY_INDENT: &str = "    ";
 const SHORT_SIZE: usize = 100;
 const DESC_CUTOFF: &str = "...";
@@ -29,7 +31,7 @@ pub struct QueryResponse {
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryItem {
-    pub name: String, //TODO test for pub
+    name: String,
     id: u32,
     description: Option<String>,
     creator: Creator,
@@ -97,7 +99,7 @@ async fn get_raw_json(query: String, limit: u8, safe: bool) -> JsonResult {
 fn parse_raw_query_json(raw: JsonResult) -> QueryResult {
     let raw_unwrapped = match raw {
         Ok(_) => raw.unwrap(),
-        Err(e) => panic!("{}\n{}", e, ERR_CONNECTION), // TODO implement this error style elsewhere
+        Err(e) => panic!("{}\n{}", e, ERR_CONNECTION),
     };
     //let raw_unwrapped = raw.unwrap();
     let test: QueryResponse = serde_json::from_str(&raw_unwrapped).expect(ERR_GET_JSON);
@@ -145,6 +147,27 @@ impl QueryResponse {
     }
 }
 
+fn handle_remove(path: &str, e: &str) -> () {
+    remove_file(path).expect(ERR_FILE_DELETE);
+    panic!("{}", e) //TODO add err msg
+}
+
+async fn perform_validated_download(file: Result<File, &str>, path: String, res: reqwest::Response) -> () {
+    let stream = &mut res.bytes_stream();
+    match file {
+        Ok(mut f) => {
+            while let Some(item) = stream.next().await {
+                let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
+                match &chunk {
+                    Ok(c) => f.write_all(c).expect(ERR_CONNECTION), //TODO correct image
+                    Err(e) => handle_remove( &path, e)
+                }
+            }
+        }
+        Err(e) => panic!("{}", e), //TODO err msg file issue
+    }
+}
+
 pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
     let res = reqwest::get(url)
@@ -156,32 +179,9 @@ pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<()
         Err(e) => panic!("{}", e), //TODO error message
     };
     
-    let file = File::create(path).or(Err(ERR_FILE_CREATE));
-    let stream = &mut validated_res.bytes_stream();
-    let mut downloaded: u64 = 0;
-    
-    match file {
-        Ok(mut f) => {while let Some(item) = stream.next().await {
-            let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
-            match chunk {
-                Ok(c) => { 
-                    downloaded += c.clone().len() as u64;
-                    f.write_all(&c);
-                    println!{"{}", downloaded}
-                }
-                Err(e) => panic!("{}", e),
-            }
-            // match f.write_all(&chunk.clone().unwrap()) { //TODO refactor (new download function)
-            //     Ok(c) => downloaded += chunk.unwrap().len() as u64,
-            //     Err(e) => panic!("{}", e),
-            // }
-            // TODO progress bar
-        }}
-        Err(e) => panic!("{}", e),
-    }
-
-
-    return Ok(());
+    let file = File::create(&path).or(Err(ERR_FILE_CREATE));
+    perform_validated_download(file, path, validated_res).await;
+    return Ok(())
 }
 
 impl QueryItem {
@@ -276,11 +276,12 @@ impl QueryItem {
         let mut display_vec: Vec<String> = Vec::new();
         display_vec.push(format!("{}Model: {}", QUERY_INDENT, self.get_model_filename()));
         display_vec.push(format!("{}Id: {}", QUERY_INDENT, self.get_id()));
+        display_vec.push(format!("{}Size (KB): {}", QUERY_INDENT, self.get_model_filesize()));
         display_vec.push(format!("{}Creator: {}", QUERY_INDENT, self.get_creator_name()));
         display_vec.push(format!("{}Tags: {}", QUERY_INDENT, self.get_tags()));
         match full {
-            true => display_vec.push(format!("{}{}", QUERY_INDENT, self.get_description())),
-            false => display_vec.push(format!("{}{}", QUERY_INDENT, self.get_short_description(SHORT_SIZE, DESC_CUTOFF))),
+            true => display_vec.push(format!("{}Desc: {}", QUERY_INDENT, self.get_description())),
+            false => display_vec.push(format!("{}Desc: {}", QUERY_INDENT, self.get_short_description(SHORT_SIZE, DESC_CUTOFF))),
         }
         display_vec.push("\n".to_string());
         display_vec.join("\n")
@@ -291,8 +292,9 @@ impl ModelVersion {
 
     fn get_model_id(&self) -> String {
         self.id.to_string()
-    } //TODO verify the use of these
+    }
 
+    #[allow(dead_code)]
     fn get_version_id(&self) -> String {
         self.model_id.to_string()
     }
@@ -370,7 +372,4 @@ pub fn shorten_unicode(string: String, length: usize, trail: &str) -> String {
 
 pub fn check_limit(s: &str) -> Result<u8, String> {
     number_range(s, 0, 100)
-}
-
-impl QueryItem {
 }
