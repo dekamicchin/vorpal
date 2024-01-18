@@ -53,14 +53,15 @@ pub struct QueryItem {
     model_versions: Vec<ModelVersion>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct Creator {
+#[derive(Deserialize, Debug, Clone)] // Could be expanded later
+struct Creator {
     username: String,
 }
 
 #[allow(dead_code)]
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+/// A struct of some basic stats from a QueryItem
 pub struct Stats {
     download_count: u32,
     favorite_count: u32,
@@ -73,6 +74,9 @@ pub struct Stats {
 #[allow(dead_code)]
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+/// The version of a Civitai model, which contains files, trained words, and
+/// other metadata. For most use cases, it would likely be much easier to
+/// utilize the QueryItem built-in methods for getting things like urls.
 pub struct ModelVersion {
     id: u32,
     model_id: u32,
@@ -86,6 +90,9 @@ pub struct ModelVersion {
 #[allow(dead_code)]
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+/// File metadata of a Civitai model file. Note that the Id here is separate from
+/// the (useful) Id of the model version. The file Id is likely not going to see 
+/// use, but is included here just in case.
 pub struct ModelFile {
     id: u32,
     #[serde(rename = "sizeKB")]
@@ -94,11 +101,11 @@ pub struct ModelFile {
     download_url: String,
 }
 
-pub type JsonResult = Result<String, Error>;
-pub type QueryResult = Result<QueryResponse, Error>;
+type JsonResult = Result<String, Error>;
+type QueryResult = Result<QueryResponse, Error>;
 
 #[tokio::main]
-async fn get_raw_json(query: String, limit: u8, safe: bool) -> JsonResult {
+async fn get_raw_civitai_json(query: String, limit: u8, safe: bool) -> JsonResult {
     let request_url = format!("https://civitai.com/api/v1/models?limit={}&query={}&nsfw={}",
                                         limit.to_string(),
                                         query,
@@ -109,7 +116,7 @@ async fn get_raw_json(query: String, limit: u8, safe: bool) -> JsonResult {
     body
 }
 
-fn parse_raw_query_json(raw: JsonResult) -> QueryResult {
+fn parse_civitai_json(raw: JsonResult) -> QueryResult {
     let raw_unwrapped = match raw {
         Ok(_) => raw.unwrap(),
         Err(e) => panic!("{}\n{}", e, ERR_CONNECTION),
@@ -125,11 +132,11 @@ fn parse_raw_query_json(raw: JsonResult) -> QueryResult {
 ///     count - the amount of results to display
 ///     safe - enter query as 'safe'
 pub fn get_query_items(search: String, count: u8, safe: bool) -> Vec<QueryItem> {
-    let raw = get_raw_json(search, count, safe);
-    let parsed = parse_raw_query_json(raw);
+    let raw = get_raw_civitai_json(search, count, safe);
+    let parsed = parse_civitai_json(raw);
     let items: Vec<QueryItem>;
     match &parsed {
-        Ok(_) => items = parsed.unwrap().get_items(),//&parsed.unwrap(),
+        Ok(_) => items = parsed.unwrap().get_items(),
         Err(e) => panic!("{}", e),
     };
     if items.len() == 0 { panic!("{}", MSG_NO_RESULTS) }
@@ -145,8 +152,14 @@ pub fn get_model_file_url(search: String) -> String {
     queryitem.get_download_url()
 }
 
-/// Find only the url of the first model from a Civitai query
-/// The most recent model version and file will be used
+/// Return the first query item from a query. Intended for quickly downloading
+/// a model from a simple search.
+/// Args:
+///     search - The search term to get models from civitai
+///     safe - Enter search as 'safe' (no NSFW)
+///            Note that this is done on a 'best effort' basis,
+///            as it is very common for users to not properly
+///            label their items.
 pub fn get_first_query_item(search: String, safe: bool) -> QueryItem {
     let count = 1;
     let query = get_query_items(search, count, safe);
@@ -181,6 +194,7 @@ async fn perform_validated_download(file: Result<File, &str>, path: String, res:
     }
 }
 
+
 pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
     let res = reqwest::get(url)
@@ -193,6 +207,7 @@ pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<()
     };
     
     let file = File::create(&path).or(Err(ERR_FILE_CREATE));
+
     perform_validated_download(file, path, validated_res).await;
     return Ok(())
 }
