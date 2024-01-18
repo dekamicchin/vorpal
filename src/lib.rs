@@ -7,7 +7,6 @@ use scraper;
 use serde_json;
 use reqwest::Error;
 
-
 const ERR_CONNECTION: &str = "Vorpal: Error in getting JSON. Ensure you have a stable internet connection. Try connecting to 1.1.1.1, 0.0.0.0, or google.com in a browser to ensure DNS connectivity.\n";
 const ERR_GET_JSON: &str = "Vorpal: Error in getting JSON. This is likely due to trying to parse an invalid query.\n";
 const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the result of an unstable connection.\n";
@@ -152,10 +151,10 @@ pub fn get_model_file_url(search: String) -> String {
     queryitem.get_download_url()
 }
 
-/// Return the first query item from a query. Intended for quickly downloading
+/// Return the first query item from a Civitai query. Intended for quickly downloading
 /// a model from a simple search.
 /// Args:
-///     search - The search term to get models from civitai
+///     search - The search term to get models from Civitai
 ///     safe - Enter search as 'safe' (no NSFW)
 ///            Note that this is done on a 'best effort' basis,
 ///            as it is very common for users to not properly
@@ -178,40 +177,38 @@ fn handle_remove(path: &str, e: &str) -> () {
     panic!("{}", e) //TODO add err msg
 }
 
-async fn perform_validated_download(file: Result<File, &str>, path: String, res: reqwest::Response) -> () {
+async fn perform_validated_download(mut file: File, path: String, res: reqwest::Response) -> () {
     let stream = &mut res.bytes_stream();
-    match file {
-        Ok(mut f) => {
-            while let Some(item) = stream.next().await {
-                let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
-                match &chunk {
-                    Ok(c) => f.write_all(c).expect(ERR_CONNECTION), //TODO correct image
-                    Err(e) => handle_remove( &path, e)
-                }
-            }
+    while let Some(item) = stream.next().await {
+        let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
+        match &chunk {
+            Ok(c) => file.write_all(c).expect(ERR_CONNECTION), //TODO correct image
+            Err(e) => handle_remove( &path, e)
         }
-        Err(e) => panic!("{}", e), //TODO err msg file issue
     }
 }
 
-
+/// Download a Civitai model given the Id (of the model version).
+/// This is the same Id that will appear on the Civitai page for
+/// that model. The get_download_url() of QueryItem can be used to
+/// find this.
+/// 
+/// Panics:
+///     - If reqwest cannot establish connection
+///     - If file cannot be created (file will be removed)
+///     - If corrupted file cannot be deleted
 pub async fn download_civitai_model_by_id(id: String, path: String) -> Result<(), Error> {
     let url = format!("{BASE_DL_URL}{id}");
-    let res = reqwest::get(url)
-        .await
-        .or(Err(ERR_FETCH));
-
-    let validated_res = match res {
-        Ok(r) => r,
-        Err(e) => panic!("{}", e), //TODO error message
-    };
-    
-    let file = File::create(&path).or(Err(ERR_FILE_CREATE));
-
-    perform_validated_download(file, path, validated_res).await;
-    return Ok(())
+    download_file_by_url(url, path).await
 }
 
+
+/// Download a file given a url and path.
+/// 
+/// Panics:
+///     - If reqwest cannot establish connection
+///     - If file cannot be created (file will be removed)
+///     - If corrupted file cannot be deleted
 pub async fn download_file_by_url(url: String, path: String) -> Result<(), Error> {
     let res = reqwest::get(url)
         .await
@@ -219,12 +216,19 @@ pub async fn download_file_by_url(url: String, path: String) -> Result<(), Error
 
     let validated_res = match res {
         Ok(r) => r,
-        Err(e) => panic!("{}", e), //TODO error message
+        Err(e) => panic!("{}", e),
     };
-    
-    let file = File::create(&path).or(Err(ERR_FILE_CREATE));
-    perform_validated_download(file, path, validated_res).await;
-    return Ok(())
+
+    let file = File::create(&path);
+    match file {
+        Ok(f) => {
+            perform_validated_download(f, path, validated_res).await;
+            return Ok(())
+        },
+        Err(e) => {
+            panic!("{}\n{}", e, ERR_FILE_CREATE);
+        },
+    }
 }
 
 impl QueryItem {
@@ -250,6 +254,7 @@ impl QueryItem {
         model_versions[0].clone()
     }
 
+    /// Get model description without HTML artifacts
     pub fn get_description(&self) -> String {
         let desc = match self.description.clone(){
             Some(desc) => desc,
@@ -280,12 +285,12 @@ impl QueryItem {
     }
 
 
+    /// Make a list of metadata that can be used in a txt file
     pub fn generate_model_report(&self) -> Vec<String> {
         let mut report_fields: Vec<String> = Vec::new();
         let version_metadata = self.get_first().get_version_metadata();
-        let file_metadata = self.get_first().get_file().get_file_metadata(); //TODO this is ugly
+        let file_metadata = self.get_first().get_latest_file().get_file_metadata();
         report_fields.extend(version_metadata);
-        //report_fields.extend(model_metadata);
         report_fields.extend(file_metadata);
         report_fields
     }
@@ -293,7 +298,7 @@ impl QueryItem {
 
     pub fn get_download_url(&self) -> String {
         let model_version = self.get_first();
-        let model_file = model_version.get_file();
+        let model_file = model_version.get_latest_file();
         model_file.download_url
     }
 
@@ -304,13 +309,13 @@ impl QueryItem {
 
     pub fn get_model_filename(&self) -> String {
         let model_version = self.get_first();
-        let model_file = model_version.get_file();
+        let model_file = model_version.get_latest_file();
         model_file.name
     }
 
     pub fn get_model_filesize(&self) -> f64 {
         let model_version = self.get_first();
-        let model_file = model_version.get_file();
+        let model_file = model_version.get_latest_file();
         model_file.size_kb
     }
 
@@ -351,7 +356,7 @@ impl ModelVersion {
         self.trained_words.join(", ")
     }
 
-    fn get_file(&self) -> ModelFile {
+    fn get_latest_file(&self) -> ModelFile {
         self.files[0].clone()
     }
 
