@@ -418,7 +418,3 @@ pub fn shorten_unicode(string: String, length: usize, trail: &str) -> String {
     let shortened = format!("{}{}", joined, trail);
     shortened
 }
-
-pub fn check_limit(s: &str) -> Result<u8, String> {
-    number_range(s, 0, 100)
-}

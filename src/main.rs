@@ -1,4 +1,5 @@
 use clap::Parser;
+use clap_num::number_range;
 use std::env;
 use anyhow::Result;
 use std::path::PathBuf;
@@ -24,6 +25,10 @@ const STDIN_FAILED: &str = "Failed to get input";
 const STDIN_INVALID: &str = "Vorpal: Only input integers";
 const STDIN_OUT_OF_RANGE: &str = "Vorpal: The number you entered is not in the query";
 const STDIN_GETTING: &str = "Getting item: ";
+
+fn check_limit(s: &str) -> Result<u8, String> {
+    number_range(s, 0, 100)
+}
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -70,6 +75,7 @@ struct Args {
     url: Option<String>,
 
 }
+
 
 fn print_query(mut query: Vec<QueryItem>, full: bool) -> () {
     query.reverse();
