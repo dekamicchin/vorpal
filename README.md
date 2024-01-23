@@ -18,8 +18,10 @@
 <h3>Linux, MacOS, and Windows (via WSL)</h3>
 <p>Ensure you have the latest version of the [Rust](https://www.rust-lang.org/tools/install) language</p>
 <p>Use this command to install Rust on Linux, MacOS, or Unix-likes (BSD)</p>
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
 <p>(Recommended) navigate to a directory of your choice. I prefer a 'builds' directory in my home</p>
       mkdir $HOME/builds && cd $HOME/builds
