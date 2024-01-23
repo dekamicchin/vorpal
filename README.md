@@ -31,14 +31,14 @@
 </ul>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
 <p>I want to focus on the downloading aspect, and make it as easy as possible to find and download models of more types and sources.</p>
-### Roadmap
+## Roadmap
 - [x] Help menu
 - [x] Command-line options
 - [x] CivitAI downloading
 - [x] CivitAI querying
 - [x] Interactive downloading
 - [ ] Manpage
-- [ ] HuggingFace support
+- [ ] (Better) tests
 <h2>Current State</h2>
 <p>I have waited until this project is in a usable, (mostly) presentable state to make it public. I found a couple similar projects on crates.io, but those seem to have been abandoned.  </p>
 <h1> </h1>
