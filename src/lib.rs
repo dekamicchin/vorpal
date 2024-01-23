@@ -25,7 +25,7 @@ const ERR_GET_JSON: &str = "Vorpal: Error in getting JSON. This is likely due to
 const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the result of an unstable connection.\n";
 const ERR_FILE_CREATE: &str = "Vorpal: Failed to create file. Is the file path clear?\n";
 const ERR_FILE_DOWNLOAD: &str = "Vorpal: Something went wrong while downloading the file. Is your connection stable?\n";
-const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n"; //TODO
+const ERR_FILE_WRITE: &str = "Vorpal: Something went wrong when writing to the file.\n";
 const ERR_FILE_DELETE: &str = "Vorpal: Something went wrong when deleting the file.\nThe model file is likely corrupted, and vorpal is unable to delete it.";
 const QUERY_INDENT: &str = "    ";
 const SHORT_SIZE: usize = 100;
@@ -195,7 +195,7 @@ async fn perform_validated_download(mut file: File, path: String, res: reqwest::
     while let Some(item) = stream.next().await {
         let chunk = item.or(Err(ERR_FILE_DOWNLOAD));
         match &chunk {
-            Ok(c) => file.write_all(c).expect(ERR_CONNECTION), //TODO correct image
+            Ok(c) => file.write_all(c).expect(ERR_CONNECTION),
             Err(e) => handle_remove( &path, e)
         }
     }
@@ -409,7 +409,6 @@ impl ModelFile {
     }
 }
 
-use clap_num::number_range;
 use unicode_segmentation::UnicodeSegmentation;
 
 /// Shorten a unicode string and add a trail at the end (ex. ...).

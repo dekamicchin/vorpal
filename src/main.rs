@@ -79,7 +79,6 @@ struct Args {
 
 fn print_query(mut query: Vec<QueryItem>, full: bool) -> () {
     query.reverse();
-    dbg!{&query};
     let output = concatenate_query_items(query, full);
     println!("{}", output);
 }
