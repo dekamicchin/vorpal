@@ -24,17 +24,36 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 <p>(Recommended) navigate to a directory of your choice. I prefer a 'builds' directory in my home</p>
-      mkdir $HOME/builds && cd $HOME/builds
+
+
+```
+mkdir $HOME/builds && cd $HOME/builds
+```
 
 <p>Clone the vorpal repo</p>
-      git clone https://github.com/dekamicchin/vorpal.git
+
+```
+git clone https://github.com/dekamicchin/vorpal.git
+```
+
 <p>Install Vorpal</p>
+
+```
       cargo install
+```
 
 <p>Add cargo executables to your PATH so you can use it like you would a normal command-line program</p>
-      echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.bash_profile
-<p>MacOS users or zsh enjoyers: add the PATH adjustment to your corresponding shell rc</p>
-      echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
+
+```
+echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.bash_profile
+```
+
+<p>MacOS users or zsh enjoyers: add the PATH adjustment to your corresponding shell startup</p>
+
+```
+echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
+```
+
 <p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
 <br>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
