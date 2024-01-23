@@ -39,6 +39,4 @@ short_description = "Package manager-like tool to download Civitai Stable Diffus
 long_description = """
 Package manager-like tool to download Civitai models by name. Can be used to query the Civitai via its API and download models directly. The directory can be an environment variable (MODEL_DIRECTORY) or specified via the CLI. Also finds important metadata, such as trigger/activation words for LoRAs, and saves them as a text file.
 """
-#deb_depends = ["libgl1-mesa-glx", "libsdl2-2.0-0 (>= 2.0.5)"]
-#osx_frameworks = ["SDL2"]
 osx_url_schemes = "com.dekamicchin.vorpal"
