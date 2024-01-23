@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use vorpal::*;
+    use libvorpal::*;
 
     #[test]
     fn shorten_test() {
