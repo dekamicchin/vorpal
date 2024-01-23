@@ -1,3 +1,16 @@
+//! Easily search and download models from Civitai.
+//! 
+//! This is the library used in Vorpal, a package manager-esque CLI 
+//! downloading and querying tool for Civitai.
+//! 
+//! Also included is a general-purpose downnloading function that
+//! simply requires a URL and filepath, because the alternatives had
+//! cryptic documentation or no library target.
+//! 
+//! There is also a function for shortening unicode strings, because
+//! certain errors can come about due to Chinese characters or emojis
+//! skewing character indices.
+
 use std::fs::File;
 use std::io::Write;
 use std::fs::remove_file;
