@@ -1,4 +1,5 @@
-<h1>Vorpal, the razor sharp AI model CLI downloader</h1>
+<h1>Vorpal</h1>
+<h2>The razor sharp AI model CLI downloader</h2>
 <p>Vorpal is a small, rust-based, command-line utility to download Stable Diffusion models and LoRAs from Civitai (and potentially Huggingface, in the future).  Searching and downloading the latest Stable Diffusion models and LoRAs can be painless and lightning-fast.</p>
 <br>
 <h2>Features</h2>
@@ -25,6 +26,9 @@
   <li>'''echo 'export PATH=$HOME/.cargo/bin:$PATH' >> ~/.zshrc'''</li>
   <li>'''echo 'export PATH=$HOME/.cargo/bin:$PATH' >> ~/.bash_profile'''</li>
 </ol>
+
+
+      mkdir ~/builds && cd ~/builds
 <p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
 <br>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
@@ -46,7 +50,7 @@
   <li>Modularity, and usability as a library</li>
 </ul>
 <br>
-<h2>Roadmap</h2>
+## Roadmap
 - [x] Help menu
 - [x] Command-line options
 - [x] CivitAI downloading
