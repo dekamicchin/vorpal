@@ -1,4 +1,4 @@
-<h1>Vorpal, a razor sharp AI model downloader CLI</h1>
+<h1>Vorpal, the razor sharp AI model CLI downloader</h1>
 <p>Vorpal is a small, rust-based, command-line utility to download Stable Diffusion models and LoRAs from Civitai (and potentially Huggingface, in the future).  Searching and downloading the latest Stable Diffusion models and LoRAs can be painless and lightning-fast.</p>
 <br>
 <h2>Features</h2>
@@ -14,14 +14,19 @@
 </ul>
 <h2>Installation</h2>
 <br>
-<h3>Via Cargo (recommended for now)</h3>
+<h3>Linux, MacOS, and Windows (via WSL)</h3>
 <ol>
   <li>Ensure you have the latest version of the [Rust](https://www.rust-lang.org/tools/install) language</li>
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
+  <p>'''curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh'''</p>
+  <li>(Recommended) navigate to a directory of your choice</li>
+  <li>'''mkdir ~/builds && cd ~/builds</li>
+  <li>'''git clone https://github.com/dekamicchin/vorpal.git'''</li>
+  <li>'''cargo install'''</li>
+  <li>'''echo 'export PATH=$HOME/.cargo/bin:$PATH' >> ~/.zshrc'''</li>
+  <li>'''echo 'export PATH=$HOME/.cargo/bin:$PATH' >> ~/.bash_profile'''</li>
 </ol>
+<p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
+<br>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
 <p>I want to focus on the downloading aspect, and make it as easy as possible to find and download models of more types and sources.</p>
 <p>I built this because the current way of downloading models is annoying. The Civitai browser is wonderful, but exhibits some issues when used repeatedly.</p>
@@ -48,11 +53,15 @@
 - [x] CivitAI querying
 - [x] Interactive downloading (pick download from list)
 - [ ] Manpage
-- [ ] (Better) tests
-- [ ] Linux install script
-- [ ] One command MacOS installation
+- [ ] General Linux/WSL install script
+- [ ] More ways to query and download (such as by Id)
+- [ ] ArchLinux package
+- [ ] Debian package
+- [ ] Homebrew package for MacOS
+- [ ] Better tests
+- [ ] HuggingFace integration
 <h2>Current State</h2>
-<p>I have waited until this project is in a usable, (mostly) presentable state to make it public. I found a couple similar projects on crates.io, but those seem to have been abandoned.  </p>
+<p>I have waited until this project is in a usable, (mostly) presentable state to make it public. I found a couple similar projects on crates.io, but those seem to have been abandoned.</p>
 <h2>Boring Legal Stuff</h2>
 <p>Copyright (c) 2024 Matthew M. Mitchell</p>
 <p>Vorpal is available under the Apache or MIT license, depending on what you want.</p>
