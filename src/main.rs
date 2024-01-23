@@ -10,7 +10,7 @@ use libvorpal::*;
 
 mod test;
 
-const DEFAULT_COUNT: u8 = 5;
+const DEFAULT_COUNT: u8 = 15;
 const REPORT_FORMAT: &str = ".txt";
 const ENV_MODEL_DIR: &str = "MODEL_DIRECTORY";
 const ERR_COUNT_TOO_BIG: &str = "Vorpal: Maximum query count allowed by API is 100";
@@ -37,9 +37,9 @@ struct Args {
     /// The name of the model to download. First result will be downloaded.
     model_name: Option<String>,
 
-    /// Run in interactive mode (Search models, then select one to download).
+    /// Run in get-first mode (download first model from query).
     #[arg(short, long, default_value_t = false)]
-    interactive: bool,
+    get_first: bool,
 
     /// Specify a directory to download to. Overrides MODEL_DIRECTORY environment variable.
     /// Currnet directory will be used if both are empty.
@@ -135,7 +135,7 @@ fn run(args: Args) -> Result<()> {
     let full = args.full;
     let only_model = args.only_model;
     let only_meta = args.meta;
-    let interactive = args.interactive;
+    let get_first = args.get_first;
     //let model_name = args.model_name;
 
     let env_directory = match env::var(ENV_MODEL_DIR).is_ok() {
@@ -163,7 +163,7 @@ fn run(args: Args) -> Result<()> {
 
     if args.model_name.is_some() {
         let model_name = args.model_name.unwrap();
-        if interactive {
+        if !get_first {
             let query = get_query_items(model_name, count, safe);
             let len = query.len() + 1;
             print_query(query.clone(), full);
