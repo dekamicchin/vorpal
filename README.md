@@ -20,38 +20,38 @@
 <p>Use this command to install Rust on Linux, MacOS, or Unix-likes (BSD)</p>
 
 ```
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 <p>(Recommended) navigate to a directory of your choice. I prefer a 'builds' directory in my home</p>
 
 
 ```
-mkdir $HOME/builds && cd $HOME/builds
+        mkdir $HOME/builds && cd $HOME/builds
 ```
 
 <p>Clone the vorpal repo</p>
 
 ```
-git clone https://github.com/dekamicchin/vorpal.git
+        git clone https://github.com/dekamicchin/vorpal.git
 ```
 
 <p>Install Vorpal</p>
 
 ```
-      cargo install
+        cargo install
 ```
 
 <p>Add cargo executables to your PATH so you can use it like you would a normal command-line program</p>
 
 ```
-echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.bash_profile
+        echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.bash_profile
 ```
 
 <p>MacOS users or zsh enjoyers: add the PATH adjustment to your corresponding shell startup</p>
 
 ```
-echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
+        echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
 ```
 
 <p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
@@ -64,7 +64,7 @@ echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
   <li>The user has to sift through menus to download a specific model</li>
   <li>A web browser is required</li>
   <li>File downloads contain little or no useful metadata, such as how the model/LoRA is supposed to be used (Safetensor metadata is often lacking)</li>
-  <li>Other tools that utilize Civitai exist, such as some plugins for [WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui), but none I could find have provided a CLI</li>
+  <li>Other tools that utilize Civitai exist, such as some plugins for [WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) , but none I could find have provided a CLI</li>
   <li>Many frontends I have found for Stable Diffusion seem to be needlessly complicated to install</li>
 </ul>
 <p>I wanted a CLI to do this for a number of reasons:</p>
@@ -75,7 +75,8 @@ echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
   <li>Modularity, and usability as a library</li>
 </ul>
 <br>
-## Roadmap
+<h2>Roadmap</h2>
+
 - [x] Help menu
 - [x] Command-line options
 - [x] CivitAI downloading
@@ -89,6 +90,7 @@ echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
 - [ ] Homebrew package for MacOS
 - [ ] Better tests
 - [ ] HuggingFace integration
+
 <h2>Current State</h2>
 <p>I have waited until this project is in a usable, (mostly) presentable state to make it public. I found a couple similar projects on crates.io, but those seem to have been abandoned.</p>
 <h2>Boring Legal Stuff</h2>
