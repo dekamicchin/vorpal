@@ -14,6 +14,7 @@
   <li>Moves at the speed of Rust (that is to say, extremely fast)</li>
 </ul>
 <h2>Installation</h2>
+<p><strong>Important note: </strong> This is a pre-release version. Bugs and issues may occur, and testing is not yet fully fleshed out. Check issues for more detail. These installation instructions are a temporary measure because I am having issues with cross-compilation for binaries.</p>
 <br>
 <h3>Linux, MacOS, and Windows (via WSL)</h3>
 <p>Ensure you have the latest version of the [Rust](https://www.rust-lang.org/tools/install) language</p>
@@ -23,6 +24,7 @@
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
+<br>
 <p>(Recommended) navigate to a directory of your choice. I prefer a 'builds' directory in my home</p>
 
 
@@ -30,30 +32,35 @@
         mkdir $HOME/builds && cd $HOME/builds
 ```
 
+<br>
 <p>Clone the vorpal repo</p>
 
 ```
         git clone https://github.com/dekamicchin/vorpal.git
 ```
 
+<br>
 <p>Install Vorpal</p>
 
 ```
         cargo install
 ```
 
+<br>
 <p>Add cargo executables to your PATH so you can use it like you would a normal command-line program</p>
 
 ```
         echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.bash_profile
 ```
 
+<br>
 <p>MacOS users or zsh enjoyers: add the PATH adjustment to your corresponding shell startup</p>
 
 ```
         echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $HOME/.zshrc
 ```
 
+<br>
 <p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
 <br>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
