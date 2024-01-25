@@ -15,6 +15,7 @@
 </ul>
 <h2>Installation</h2>
 <p><strong>Important note: </strong> This is a pre-release version. Bugs and issues may occur, and testing is not yet fully fleshed out. Check issues for more detail. These installation instructions are a temporary measure because I am having issues with cross-compilation for binaries.</p>
+<p>Cargo is a <strong>temporary</strong> solution for installation. I want there to be at least something for people to use, should anyone want to use this.</p>
 <br>
 <h3>Linux, MacOS, and Windows (via WSL)</h3>
 <p>Ensure you have the latest version of the [Rust](https://www.rust-lang.org/tools/install) language</p>
@@ -63,6 +64,7 @@
 <br>
 <p>Homebrew, Arch, and Debian packages are incoming, just please give me time.</p>
 <br>
+<h2>About</h2>
 <p>Vorpal is lightweight, fast, and programmable. It is suitable for a multitude of environments, such as desktops or servers. You can easily find and download whatever model you need through easy to use and familiar command-line controls. Vorpal is also suitable for servers and enterprises, and allows machines to download models themselves without the need for rsync, ssh file transfers, or bloated git repos.</p>
 <p>I want to focus on the downloading aspect, and make it as easy as possible to find and download models of more types and sources.</p>
 <p>I built this because the current way of downloading models is annoying. The Civitai browser is wonderful, but exhibits some issues when used repeatedly.</p>
