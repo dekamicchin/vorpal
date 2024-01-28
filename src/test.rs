@@ -41,13 +41,53 @@ mod tests {
     }
 
     #[test]
-    fn glitter_url() {
-        let input = "glitter".to_string();
-        let trunc_length = 12;
-        let trunc_trail = "...";
-        let expected_outcome = "ᚠ feoh, ᚢ ur...";
-
-        assert_eq!(expected_outcome, shorten_unicode(input, trunc_length, trunc_trail));
+    // This uses the model id to verify that get_first is indeed getting the right
+    // model.
+    fn get_first_test() {
+        let model_name = "cat".to_string();
+        let safe = false;
+        let expected_outcome = "20086".to_string();
+        let queryitem = get_first_query_item(model_name, safe);
+        assert_eq!(expected_outcome, queryitem.get_id());
+    }
+    #[test]
+    // This test makes a query of 100 to ensure that Vorpal is able to make queryitems
+    // properly. Previously, issues came about due to improper labeling, unicode breaking
+    // things, etc. This test is necessary to ensure stability and integrity.
+    fn broad_query_test_1() {
+        let model_name = "cat".to_string();
+        let safe = true;
+        let count = 100;
+        let query = get_query_items(model_name, count, safe);
+        let len = query.len();
+        assert_eq!(count, len as u8);
+    }
+    #[test]
+    fn broad_query_test_2() {
+        let model_name = "dog".to_string();
+        let safe = true;
+        let count = 100;
+        let query = get_query_items(model_name, count, safe);
+        let len = query.len();
+        assert_eq!(count, len as u8);
+    }
+    #[test]
+    fn broad_query_test_3() {
+        let model_name = "painting".to_string();
+        let safe = true;
+        let count = 100;
+        let query = get_query_items(model_name, count, safe);
+        let len = query.len();
+        assert_eq!(count, len as u8);
+    }
+    #[test]
+    fn broad_query_test_4() {
+        let model_name = "girl".to_string();
+        let safe = true;
+        let count = 100;
+        let query = get_query_items(model_name, count, safe);
+        let len = query.len();
+        assert_eq!(count, len as u8);
     }
 }
 
