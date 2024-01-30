@@ -82,6 +82,77 @@
   <li>Modularity, and usability as a library</li>
 </ul>
 <br>
+<h2>Usage/Examples</h2>
+<p>
+Usage: vorpal [OPTIONS] [MODEL_NAME]
+
+Arguments:
+  [MODEL_NAME]  The name of the model to download. First result will be downloaded
+
+Options:
+  -g, --get-first              Run in get-first mode (download first model from query)
+  -d, --directory <DIRECTORY>  Specify a directory to download to. Overrides MODEL_DIRECTORY environment variable. Currnet directory will be used if both are empty
+  -o, --only-model             Only download model (don't save metadata)
+  -m, --meta                   Only get metadata of model
+  -q, --query <QUERY>          Search Civitai for available models and LoRAs
+  -c, --count <COUNT>          How many models to search [default: 15]
+  -s, --safe                   Enter query as 'safe' (no NSFW)
+  -f, --full                   Show full descriptions of query
+  -u, --url <MODEL_NAME>       Return the download url of a model only
+  -h, --help                   Print help
+  -V, --version                Print version
+</p>
+<br>
+<p>Search for models to download that match the query 'cat' (gives interactive menu to pick from)</p>
+
+```
+        vorpal cat
+```
+
+<br>
+<p>Get (download model and metadata) first search result that comes from 'cat'</p>
+
+```
+        vorpal -g cat
+```
+
+<br>
+<p>Search for models that match 'glitter'</p>
+
+```
+        vorpal -s -f glitter -c 3
+```
+
+<p>The -s option enters the query as 'safe'</p>
+<p>The -f option tells vorpal to display the full descriptions (these can be long)</p>
+<p>The -c option specifies how many results will be returned in the query API call</p>
+<br>
+<p>Search for cat models to download</p>
+
+```
+        MODEL_DIRECTORY=/home/me/my_models vorpal cat
+```
+<p>The -d option can be used which directory to download to instead of an environment variable</p>
+
+```
+        vorpal cat -d ~/home/my_models
+```
+
+<p>The -d option is meant to be used as an override, such as for downloading base SDXL checkpoints that usually belong in a separate folder. It is recommended to set a MODEL_DIRECTORY environment variable to make things easier for CLI use.</p>
+<p>Other user-specified environment variables are also a good idea, like in this example:</p>
+
+```
+        echo 'export MODEL_DIRECTORY=/home/me/stable-diffusion-webui/models/Lora' >> ~/.zshrc
+        echo 'export SDXL_CHECKPOINT_DIR=/home/me/stable-diffusion-webui/models/Stable-diffusion' >> ~/.zshrc
+        source ~/.zshrc
+        vorpal realcartoon -d SDXL_CHECKPOINT_DIR
+```
+
+<p>This is a simple example of setting and using environment variables to easily download models and loras to the desired locations.</p>
+<br>
+
+
+<br>
 <h2>Roadmap</h2>
 
 - [x] Help menu
@@ -90,7 +161,7 @@
 - [x] CivitAI querying
 - [x] Interactive downloading (pick download from list)
 - [ ] Manpage
-- [ ] General Linux/WSL install script
+- [X] General Linux/WSL install script
 - [ ] More ways to query and download (such as by Id)
 - [ ] ArchLinux package
 - [ ] Debian package
