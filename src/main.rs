@@ -16,6 +16,7 @@ const ENV_MODEL_DIR: &str = "MODEL_DIRECTORY";
 const ERR_COUNT_TOO_BIG: &str = "Vorpal: Maximum query count allowed by API is 100";
 const ERR_MUTUALLY_EXCLUSIVE: &str = "Vorpal: These arguments are mutually exclusive. The -m argument is meant for only downloading metadata, and the -o argument is for only downloading models.";
 const MSG_DRY_RUN: &str = "Vorpal: Performing dry run (no download)";
+const MSG_PLEASE_SELECT: &str = "Please enter the number of the desired model";
 const MSG_WRITE_SUCCESS: &str = "Vorpal: Wrote metadata file";
 const ERR_WRITE_FAIL: &str = "Vorpal: An error occured when writing the metadata file.\nDo you have write permission?";
 const MSG_DOWNLOAD_START: &str = "Vorpal: Starting download...";
@@ -127,7 +128,7 @@ fn write_report(model: QueryItem, dir: PathBuf) -> () {
 }
 
 fn run(args: Args) -> Result<()> {
-    dbg!{&args};
+    //dbg!{&args};
     let count = args.count;
     if count > 100 { panic!("{}", ERR_COUNT_TOO_BIG )}
     let safe = args.safe;
@@ -167,6 +168,7 @@ fn run(args: Args) -> Result<()> {
             let len = query.len() + 1;
             print_query(query.clone(), full);
             let mut user_input = String::new();
+            println!("{}", MSG_PLEASE_SELECT);
             io::stdin()
                 .read_line(&mut user_input)
                 .expect(STDIN_FAILED);
