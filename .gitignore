@@ -1,3 +1,4 @@
 modeldump
 target
 .nvimlog
+cross-compile-rust-from-mac-to-linux
