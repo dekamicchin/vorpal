@@ -16,7 +16,6 @@ required-features = []
 
 [dependencies]
 anyhow = "1.0.75"
-cargo-bundle = "0.6.0"
 clap = { version = "4.4.11", features = ["derive"] }
 clap-num = "1.0.2"
 futures-util = "0.3.29"
