@@ -19,8 +19,9 @@ use serde::Deserialize;
 use scraper;
 use serde_json;
 use reqwest::Error;
+use anyhow::Result;
 
-const ERR_CONNECTION: &str = "Vorpal: Error in getting JSON. Ensure you have a stable internet connection. Try connecting to 1.1.1.1, 0.0.0.0, or google.com in a browser to ensure DNS connectivity.\n";
+const ERR_CONNECTION: &str = "Vorpal: Error in getting JSON. This usually means that the CivitAI API is experiencing issues.\n";
 const ERR_GET_JSON: &str = "Vorpal: Error in getting JSON. This is likely due to trying to parse an invalid query.\n";
 const ERR_FETCH: &str = "Vorpal: Failed to fetch download. This could be the result of an unstable connection.\n";
 const ERR_FILE_CREATE: &str = "Vorpal: Failed to create file. Is the file path clear?\n";
