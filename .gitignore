@@ -1,5 +1,8 @@
 modeldump
 target
 .nvimlog
+<<<<<<< HEAD
 cross-compile-rust-from-mac-to-linux
+=======
+>>>>>>> testing
 testcache
