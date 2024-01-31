@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod tests {
 
+    use anyhow::Error;
     use libvorpal::*;
+
+    use crate::run;
 
     #[test]
     fn shorten_test() {
@@ -88,5 +91,30 @@ mod tests {
         let query = get_query_items(model_name, count, safe);
         let len = query.len();
         assert_eq!(count, len as u8);
+    }
+
+    //TODO separate main/cli tests and lib tests
+    #[cfg(test)]
+    use crate::Args;
+    fn download_first_test() -> Result<(), Error> {
+        let model_name = "cat".to_string();
+        let args = Args {
+            model_name: Some(
+                model_name,
+            ),
+            get_first: false,
+            directory: None,
+            only_model: false,
+            meta: false,
+            query: None,
+            count: 15,
+            safe: false,
+            full: false,
+            url: None,
+        };
+        run(args)
+        //assert_eq!(result, Ok(()));
+        //let query = download(model_name, count, safe);
+        //let len = query.len();
     }
 }
