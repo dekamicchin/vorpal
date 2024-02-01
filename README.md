@@ -76,6 +76,7 @@
   <li>Other tools that utilize Civitai exist, such as some plugins for [WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) , but none I could find have provided a CLI</li>
   <li>Many frontends I have found for Stable Diffusion seem to be needlessly complicated to install</li>
 </ul>
+<br>
 <p>I wanted a CLI to do this for a number of reasons:</p>
 <ul>
   <li>Speed</li>
@@ -125,6 +126,7 @@ Options:
         vorpal -s -f glitter -c 3
 ```
 
+<br>
 <p>The -s option enters the query as 'safe'</p>
 <p>The -f option tells vorpal to display the full descriptions (these can be long)</p>
 <p>The -c option specifies how many results will be returned in the query API call</p>
@@ -134,6 +136,8 @@ Options:
 ```
         MODEL_DIRECTORY=/home/me/my_models vorpal cat
 ```
+
+<br>
 <p>The -d option can be used which directory to download to instead of an environment variable</p>
 
 ```
@@ -141,6 +145,7 @@ Options:
 ```
 
 <p>The -d option is meant to be used as an override, such as for downloading base SDXL checkpoints that usually belong in a separate folder. It is recommended to set a MODEL_DIRECTORY environment variable to make things easier for CLI use.</p>
+<br>
 <p>Other user-specified environment variables are also a good idea, like in this example:</p>
 
 ```
